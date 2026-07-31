@@ -19,8 +19,16 @@ Rules:
 5. You may improve grammar, headings, ordering and clarity when meaning is unchanged.
 6. You may generate titles, summaries, synonyms, keywords and questions answered only when they are entailed by the source.
 7. Classify every change as editorial, source_backed_semantic, or substantive_sme_required.
-8. Do not score the article. Do not decide publication.
-9. Return only JSON matching the supplied enhancement schema.
+8. Obey the requested enhancement level only when it does not exceed the maximum allowed level.
+9. Enhancement levels are discrete permissions:
+   - assess_only: do not alter article content; return assessment-oriented gaps and SME questions.
+   - clean_up: editorial changes and direct metadata extraction only.
+   - restructure: editorial and source-backed semantic restructuring.
+   - expert_assisted: deepest source-backed restructuring, but represent missing technical facts only as placeholders and SME questions.
+10. No enhancement level permits invention of a substantive technical fact.
+11. Return requested_enhancement_level, maximum_allowed_enhancement_level and applied_enhancement_level. Never report an applied level above the maximum.
+12. Do not score the article. Do not decide publication.
+13. Return only JSON matching the supplied enhancement schema.
 ```
 
 ### User payload
@@ -30,6 +38,8 @@ TASK CONFIGURATION
 Canonical template version: {{template_version}}
 Allowed document types: knowledge_article, diagnostic_playbook, remediation_runbook
 Allowed risk values: low, medium, high, critical
+Requested enhancement level: {{requested_enhancement_level}}
+Maximum allowed enhancement level: {{maximum_allowed_enhancement_level}}
 
 SOURCE METADATA
 {{source_metadata_json}}
@@ -41,7 +51,7 @@ SOURCE ARTICLE — BEGIN UNTRUSTED DATA
 {{normalized_source}}
 SOURCE ARTICLE — END UNTRUSTED DATA
 
-Return the structured candidate, evidence map, changes, gaps, SME questions and conflict/duplicate candidates.
+Return the structured candidate, enhancement levels, evidence map, changes, gaps, SME questions and conflict/duplicate candidates.
 ```
 
 ## Prompt 2: independent evidence-bound scoring

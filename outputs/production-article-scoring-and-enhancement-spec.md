@@ -99,6 +99,9 @@ document_type: knowledge_article | diagnostic_playbook | remediation_runbook
 content_risk: low | medium | high | critical
 source_trust: governed | owned | uncertain | conflicting
 change_class_allowed: editorial_only | source_backed_semantic | substantive_sme_required
+requested_enhancement_level: assess_only | clean_up | restructure | expert_assisted
+maximum_allowed_enhancement_level: assess_only | clean_up | restructure | expert_assisted
+applied_enhancement_level: assess_only | clean_up | restructure | expert_assisted
 automation_readiness: not_applicable | manual_only
 agent_mode_allowed: retrieval_only | recommendation
 ```
@@ -128,11 +131,38 @@ The model must use `MISSING` or `UNVERIFIED` rather than inventing a fact.
 | B — source-backed semantic | Paraphrase, summary, synonyms, questions answered, reordered source-backed steps | Review by evidence comparison; sampling may be possible later |
 | C — substantive | New step, command, cause, threshold, permission, scope, expected result, rollback or escalation rule | AI may only flag the gap; an SME must supply and approve the content |
 
+#### Enhancement levels
+
+Enhancement level controls the changes the AI is permitted to make. It is a discrete authority setting, not a creativity or temperature control.
+
+| Level | API value | AI behavior | Review treatment |
+|---:|---|---|---|
+| 0 | `assess_only` | Score the source, identify gaps and generate SME questions; do not alter article content | Assessment only |
+| 1 | `clean_up` | Apply Class A editorial changes and direct metadata extraction only | Lightweight diff review |
+| 2 | `restructure` | Apply Class A and source-backed Class B changes: clearer sections, summaries, synonyms, applicability and reordered source-backed steps | Default; evidence-backed diff review |
+| 3 | `expert_assisted` | Perform the deepest source-backed restructuring and create explicit placeholders/questions for missing technical content | Mandatory SME approval |
+
+`automation_preparation` is a future fifth mode. It must remain unavailable in this release because it requires the separate Automation Readiness Score, tool contracts, approval design and sandbox testing.
+
+The application—not the model—sets `maximum_allowed_enhancement_level` from source trust, content risk and review policy. A user may request a lower level. Exceeding the maximum requires an explicit policy-authorized workflow; changing the prompt is not sufficient.
+
+Initial policy:
+
+- default to `restructure` for governed or owned low/medium-risk content;
+- cap uncertain-source content at `clean_up` until an owner/SME validates it;
+- cap high/critical-risk content at `restructure` and require human approval;
+- use `expert_assisted` only when an SME is assigned to answer the generated questions;
+- never allow any level to invent a Class C fact;
+- record requested, maximum and applied levels in the result and audit trail.
+
+The UI should use named radio cards, a dropdown or a four-stop segmented control. It must show what each mode can change and its review requirement. Do not expose a continuous enhancement-strength slider.
+
 ### 6. Deterministic post-checks
 
 Validate the enhanced output against the schema and confirm:
 
 - all material claims have source evidence or are marked missing/unverified;
+- requested, maximum and applied enhancement levels are valid and `applied` does not exceed `maximum`;
 - no source-backed value changed meaning;
 - no new command, number, threshold, version or permission appeared without evidence;
 - required headings and metadata exist;

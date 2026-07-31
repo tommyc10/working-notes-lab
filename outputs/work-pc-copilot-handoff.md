@@ -1,172 +1,152 @@
-# Work-PC handoff: build the scoring and enhancement MVP
+# Copilot handoff: plan integration into the existing project
 
-## Files to transfer
+## Purpose
 
-Transfer these files through an approved company method:
+Use the framework files as requirements and have GitHub Copilot inspect the real project before proposing how to add article enhancement, scoring, review routing and evaluation.
+
+This is a **planning handoff**, not a request to generate a new standalone codebase or immediately implement features. The existing application's language, architecture, data flow, conventions, security controls and deployment process are authoritative.
+
+## Framework files to add to the work repository
+
+Place these in an appropriate documentation/design location without replacing existing project instructions:
 
 1. `production-article-scoring-and-enhancement-spec.md`
 2. `ai-enhancement-and-scoring-prompts.md`
 3. `article-enhancement.schema.json`
 4. `article-assessment.schema.json`
-5. `ai-ready-runbook-template.md` — optional reference for the rendered article
+5. `ai-ready-runbook-template.md`
 
-The broader research and migration blueprint are optional background. The five files above are the implementation pack.
+Optional background:
 
-These files contain no company article content. Before adding real examples, confirm that the repository, GitHub Copilot configuration and selected model/API are approved for internal data at the relevant classification.
+- `ai-ready-runbook-standard.md`
+- `confluence-to-ai-knowledge-blueprint.md`
 
-## Recommended repository structure
+Before adding real articles, confirm that the repository, Copilot configuration and eventual AI provider are approved for the relevant internal-data classification.
 
-Use the same language and framework as the existing migration tool. If there is no established stack, Python is a reasonable prototype choice.
+## What Copilot should inspect
 
-```text
-article-quality-pipeline/
-  README.md
-  docs/
-    production-spec.md
-    article-template.md
-  schemas/
-    article-enhancement.schema.json
-    article-assessment.schema.json
-  prompts/
-    enhancement.md
-    scoring.md
-    retrieval-query-generation.md
-  src/
-    models/
-    validation/
-    normalization/
-    enhancement/
-    scoring/
-    decision/
-    evaluation/
-    cli/
-  tests/
-    fixtures/synthetic/
-    unit/
-    integration/
-    golden/
-  evals/
-    rubric.json
-    expected/
-  config/
-    example.config
-```
+Copilot should read the framework files and then inspect enough of the existing project to understand:
 
-Do not commit real articles, tokens, API keys, personal data or production URLs until the repository and secret-management approach are approved.
+- repository instructions such as `README`, `AGENTS.md`, contribution guidance and architecture decisions;
+- package manifests, runtime versions and dependency conventions;
+- current Confluence extraction and article transformation flow;
+- destination-system client, article schema and publishing workflow;
+- existing domain models, validation, configuration and error handling;
+- authentication, authorization, secrets and access-control handling;
+- logging, telemetry, audit and data-retention patterns;
+- queues, jobs, APIs, CLI commands or UI surfaces involved in migration;
+- test structure, fixtures, mocks, CI/CD and deployment environments;
+- any existing AI/model abstractions, prompt storage or evaluation tooling.
 
-## Build order
+It must cite concrete project files, symbols and flows in the plan instead of guessing.
 
-### Milestone 1 — deterministic local skeleton
+## Required plan output
 
-Build a CLI or local service that:
+The plan should contain:
 
-1. accepts one normalized article JSON file;
-2. validates required source metadata;
-3. runs deterministic checks;
-4. validates mock enhancement output against the enhancement schema;
-5. validates mock assessment output against the assessment schema;
-6. calculates the weighted score in code;
-7. applies blockers and the routing policy deterministically;
-8. writes an auditable result bundle.
+1. **Current-state architecture** — how an article moves through the project today.
+2. **Framework mapping** — where normalization, enhancement, scoring, decisioning, review and retrieval evaluation fit.
+3. **Reuse versus new work** — existing components to extend and genuinely new components required.
+4. **File-level change map** — likely files/modules to modify or add and why.
+5. **Data contracts** — mapping between current models and the enhancement/assessment schemas.
+6. **Enhancement levels** — how `assess_only`, `clean_up`, `restructure` and `expert_assisted` should be represented in backend, configuration and any UI.
+7. **Scoring and blockers** — deterministic calculation, critical-dimension rules and routing ownership.
+8. **AI integration boundary** — separate enhancement and scoring calls, provider abstraction, configuration and failure behavior.
+9. **Human review flow** — where diffs, evidence, scores, gaps and approval decisions appear.
+10. **Evaluation strategy** — synthetic tests, gold examples, retrieval tests and production outcome metrics.
+11. **Security and governance** — source provenance, ACLs, secrets, prompt injection, audit and retention.
+12. **Rollout and rollback** — shadow mode, supervised release, feature flags, monitoring and safe disablement.
+13. **Unknowns and decisions** — questions that must be answered before implementation.
+14. **Phased implementation backlog** — small ordered slices, dependencies and definition of done.
 
-Do not call an LLM or publish anything in this milestone.
-
-### Milestone 2 — provider-agnostic AI adapters
-
-Add separate interfaces for:
-
-- enhancement;
-- scoring judge A;
-- scoring judge B;
-- retrieval-query generation.
-
-Keep model name, endpoint, prompt version, temperature and credentials in approved configuration. Make the pipeline work with mock providers so tests do not require network access.
-
-### Milestone 3 — synthetic evaluation
-
-Create synthetic fixtures for:
-
-- a complete score-5 article;
-- a human-usable but agent-weak score-3 article;
-- a poor article below 3;
-- an article containing a secret;
-- an article with prompt-injection-like instructions;
-- an ambiguous near-neighbor incident;
-- a high-risk procedure missing approval or rollback;
-- an article whose AI enhancement invents a command or threshold.
-
-Tests must prove that blockers override averages and that enhancement cannot introduce unsupported material.
-
-### Milestone 4 — work examples and calibration
-
-Only after approval, add anonymised good, bad and high-risk examples plus incident queries. Two human reviewers create expected scores and decisions. Store expected outputs as a versioned gold set.
-
-### Milestone 5 — staging integration
-
-Connect read-only Confluence extraction and destination staging. Do not grant production publishing access. Run the pipeline in shadow mode, compare results with human reviewers and record disagreements.
-
-### Milestone 6 — supervised production
-
-Enable publishing only through an explicit approval action. Promotion must record source version/hash, enhanced diff, model/prompt/schema versions, scores, blockers, retrieval tests and reviewer identity.
+The plan must distinguish confirmed facts from assumptions and recommendations.
 
 ## Paste this into GitHub Copilot Chat
 
 ```text
-You are helping implement a production-bound incident knowledge article quality pipeline.
+I want you to plan how to integrate a new AI-assisted knowledge-article enhancement and scoring framework into this existing project.
 
-First read these files completely:
-- docs/production-spec.md
-- docs/article-template.md
-- prompts/enhancement.md
-- prompts/scoring.md
-- schemas/article-enhancement.schema.json
-- schemas/article-assessment.schema.json
+Do not implement or edit code yet.
 
-Important constraints:
-- Use the repository's existing language and conventions.
-- Do not add Confluence, destination-system or production publishing integrations yet.
-- Do not add real company data, secrets or credentials.
-- Keep AI enhancement and AI scoring as separate interfaces and calls.
-- The deterministic application code, not the LLM, must calculate the weighted score and final routing decision.
-- A hard blocker must override the numeric score.
-- A score must not be rounded to cross the 4.0 publication threshold.
-- All content remains manual_only; this project must not execute operational tool calls.
-- AI-produced JSON must be validated against the supplied schemas.
-- Every processing result must record source hash/version and model, prompt, rubric and schema versions.
-- The implementation must support mock AI providers for deterministic tests.
+First, read all repository-specific instructions and then read these framework files completely:
+- {{path}}/production-article-scoring-and-enhancement-spec.md
+- {{path}}/ai-enhancement-and-scoring-prompts.md
+- {{path}}/article-enhancement.schema.json
+- {{path}}/article-assessment.schema.json
+- {{path}}/ai-ready-runbook-template.md
 
-Start with Milestone 1 only:
-1. Inspect the repository and propose the smallest compatible module structure.
-2. Identify contradictions or unresolved design decisions in the supplied specification before coding.
-3. Implement domain models and JSON-schema validation.
-4. Implement the weighted Knowledge Readiness Score calculation using weights 25%, 20%, 20%, 10%, 15%, 5%, 5%.
-5. Implement deterministic routing and hard-blocker precedence.
-6. Add a CLI that reads one synthetic candidate/assessment bundle and writes a result bundle.
-7. Add unit tests for threshold boundaries, critical-dimension failures, blockers and invalid schemas.
-8. Update the README with local commands and a clear statement that no LLM or production integration exists yet.
+Optional background, if present:
+- {{path}}/ai-ready-runbook-standard.md
+- {{path}}/confluence-to-ai-knowledge-blueprint.md
 
-Do not begin Milestone 2 until Milestone 1 tests pass and I approve the design.
+Next, inspect the existing codebase to understand its actual architecture and current article flow. Examine the relevant README/AGENTS/contribution guidance, package manifests, source modules, domain models, Confluence extraction, transformations, destination publishing, configuration, security, logging, tests, CI/CD and any existing AI abstractions.
+
+Planning rules:
+- The existing codebase and repository instructions are authoritative.
+- Reuse existing modules and conventions where sensible; do not propose a separate greenfield application unless the codebase proves that isolation is necessary.
+- Cite specific project files and symbols as evidence for architectural statements.
+- Mark every statement as confirmed, assumed or recommended when the distinction matters.
+- Identify contradictions between the framework and the current implementation.
+- Do not invent destination APIs, permissions, schemas or model-provider capabilities.
+- Do not include real credentials or confidential article content in the plan.
+- Keep enhancement and scoring as separate AI operations.
+- Final score calculation, blocker precedence and routing must be deterministic application logic, not an LLM decision.
+- All content remains manual_only; do not plan operational tool execution in the initial release.
+- Enhancement level is a discrete policy enum, not model creativity: assess_only, clean_up, restructure, expert_assisted.
+- The application must set the maximum allowed enhancement level from risk/source trust; the model may not exceed it.
+
+Produce a detailed integration plan with these sections:
+1. Current-state article flow and architecture
+2. Proposed end-to-end flow
+3. Existing components to reuse
+4. New components required
+5. File/module-level change map
+6. Data-model and schema mapping
+7. Enhancement-level design, including UI/configuration if relevant
+8. Deterministic scoring, blockers and routing
+9. AI provider/prompt integration boundary and failure handling
+10. Human review and approval experience
+11. Test and evaluation strategy
+12. Security, privacy, permissions and audit controls
+13. Observability and production-value metrics
+14. Rollout, feature flags and rollback
+15. Open questions and decisions
+16. Phased implementation backlog with dependencies and definition of done
+
+For each implementation phase include:
+- objective;
+- affected existing files/modules;
+- new files/modules if required;
+- dependencies and decisions;
+- tests and acceptance criteria;
+- risks and rollback considerations.
+
+End with:
+- the five highest-priority questions for the project owner;
+- the smallest useful first implementation slice;
+- an explicit list of anything you could not verify from the repository.
+
+Return the plan for review. Do not start coding until I approve it.
 ```
 
-## Milestone 1 acceptance tests
+Replace `{{path}}` with the directory containing the transferred framework files.
 
-- Valid schema and score 4.0 with all critical dimensions at least 4 routes to approval/testing, not directly to uncontrolled publication.
-- Score 3.999 does not pass.
-- Score above 4 with one critical dimension at 3 does not pass.
-- Score 5 with a hard blocker routes to `BLOCKED`.
-- Missing source ID/version/hash fails validation.
-- Duplicate or missing dimension entries fail validation or deterministic completeness checking.
-- Model-reported weighted score is ignored or verified against the code-calculated score.
-- Unsupported decision values and change classes fail validation.
-- Result bundle contains complete version/audit metadata.
+## Review the Copilot plan before implementation
 
-## Decisions to make at work before Milestone 2
+Reject or revise the plan if it:
 
-- Existing migration-tool language and repository.
-- Approved AI model/provider and internal-data policy.
-- Confluence Cloud versus Data Center and the approved authentication method.
-- Destination staging API and article schema.
-- Access-control mapping and security owner.
-- Final publication approver and review queue.
-- Where prompts, model settings, evaluation data and audit records will be versioned.
-- Acceptable per-article cost, latency and review time.
+- proposes a second standalone application without evidence;
+- skips the existing migration/publishing flow;
+- combines enhancement and scoring into one model call;
+- lets the LLM calculate or enforce the final publication decision;
+- treats enhancement level as unrestricted creativity;
+- allows the model to exceed the maximum enhancement level;
+- omits evidence mapping, source version/hash, hard blockers or human review;
+- enables tool execution in the initial release;
+- lacks retrieval evaluation and incident-value measurement;
+- fails to identify concrete codebase files and integration points;
+- starts coding before the plan is approved.
+
+## After the plan is approved
+
+Ask Copilot to implement only the smallest approved phase. Require tests and a reviewable diff before moving to the next phase. Re-run the gold evaluation set whenever prompts, models, schemas, scoring rules, normalization, chunking or retrieval configuration changes.

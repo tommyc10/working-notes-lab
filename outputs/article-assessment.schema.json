@@ -35,7 +35,15 @@
     "classification": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["document_type", "content_risk", "source_trust", "maximum_change_class"],
+      "required": [
+        "document_type",
+        "content_risk",
+        "source_trust",
+        "maximum_change_class",
+        "requested_enhancement_level",
+        "maximum_allowed_enhancement_level",
+        "applied_enhancement_level"
+      ],
       "properties": {
         "document_type": {
           "enum": ["knowledge_article", "diagnostic_playbook", "remediation_runbook"]
@@ -44,6 +52,15 @@
         "source_trust": { "enum": ["governed", "owned", "uncertain", "conflicting"] },
         "maximum_change_class": {
           "enum": ["editorial", "source_backed_semantic", "substantive_sme_required"]
+        },
+        "requested_enhancement_level": {
+          "enum": ["assess_only", "clean_up", "restructure", "expert_assisted"]
+        },
+        "maximum_allowed_enhancement_level": {
+          "enum": ["assess_only", "clean_up", "restructure", "expert_assisted"]
+        },
+        "applied_enhancement_level": {
+          "enum": ["assess_only", "clean_up", "restructure", "expert_assisted"]
         }
       }
     },

@@ -222,18 +222,30 @@ The AI must not invent:
 - commands, parameters, thresholds, account names, permissions, approvals, rollback actions, contacts, causes, success criteria, or supported versions;
 - a fact merely because it is common practice or appears in another unapproved article.
 
-### 3. Enhance with a source-backed diff
+### 3. Apply a bounded enhancement level
 
-Generate a proposed revised article plus a change report with four categories:
+Enhancement level is a discrete policy choice, not a creativity setting:
 
-- `source_backed_rewrite`
-- `metadata_enrichment`
-- `missing_information`
-- `conflict_or_risk`
+| Level | Value | Permitted behavior |
+|---:|---|---|
+| 0 | `assess_only` | Score and identify gaps without changing article content |
+| 1 | `clean_up` | Editorial cleanup and direct metadata extraction |
+| 2 | `restructure` | Default: source-backed rewriting, sections, summaries, synonyms, applicability and reordered steps |
+| 3 | `expert_assisted` | Deepest source-backed restructuring plus explicit SME placeholders/questions for missing technical facts |
+
+The application calculates the maximum level from source trust, content risk and review policy. The model must record the requested, maximum and applied levels and may never exceed the maximum. No level permits invention. Future `automation_preparation` is a separate, locked workflow governed by the Automation Readiness Score.
+
+### 4. Enhance with a source-backed diff
+
+Generate a proposed revised article plus a change report using these classes:
+
+- `editorial`
+- `source_backed_semantic`
+- `substantive_sme_required`
 
 Every substantive addition needs a source citation. Keep the scorer and enhancer separate: a scoring model should not silently repair the article it is judging.
 
-### 4. Run deterministic checks first
+### 5. Run deterministic checks first
 
 Before an LLM score, validate:
 
@@ -249,7 +261,7 @@ Before an LLM score, validate:
 
 Deterministic failures are cheaper, reproducible, and should not be delegated to a probabilistic judge.
 
-### 5. Use evidence-bound AI scoring
+### 6. Use evidence-bound AI scoring
 
 Run two independent scoring passes with the same locked rubric and low variability. Each pass returns structured JSON containing:
 
@@ -273,7 +285,7 @@ Run two independent scoring passes with the same locked rubric and low variabili
 
 Adjudicate when the judges differ by more than one point on any dimension, disagree on a blocker, or have low confidence. Calibrate AI results against a human-scored “gold” set before allowing automation.
 
-### 6. Test retrieval and execution separately
+### 7. Test retrieval and execution separately
 
 For each article create positive and negative test queries:
 
@@ -298,7 +310,7 @@ Suggested pilot targets—not universal standards—are:
 
 Tune these after measuring incident risk, baseline performance, and the cost of false action versus false abstention.
 
-### 7. Publish with continuous review
+### 8. Publish with continuous review
 
 Use lifecycle states such as:
 
