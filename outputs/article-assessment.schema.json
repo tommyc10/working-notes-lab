@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://internal.example/schemas/article-assessment.schema.json",
+  "title": "Incident Knowledge Article Assessment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "article_id",
+    "source",
+    "classification",
+    "checks",
+    "dimension_scores",
+    "hard_blockers",
+    "weighted_score",
+    "critical_dimensions_pass",
+    "retrieval_gate",
+    "decision",
+    "confidence",
+    "assessor"
+  ],
+  "properties": {
+    "article_id": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "page_id", "version", "content_hash"],
+      "properties": {
+        "system": { "const": "confluence" },
+        "page_id": { "type": "string", "minLength": 1 },
+        "version": { "type": ["string", "integer"] },
+        "content_hash": { "type": "string", "minLength": 1 },
+        "url": { "type": "string" }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_type", "content_risk", "source_trust", "maximum_change_class"],
+      "properties": {
+        "document_type": {
+          "enum": ["knowledge_article", "diagnostic_playbook", "remediation_runbook"]
+        },
+        "content_risk": { "enum": ["low", "medium", "high", "critical"] },
+        "source_trust": { "enum": ["governed", "owned", "uncertain", "conflicting"] },
+        "maximum_change_class": {
+          "enum": ["editorial", "source_backed_semantic", "substantive_sme_required"]
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["check_id", "status", "message"],
+        "properties": {
+          "check_id": { "type": "string" },
+          "status": { "enum": ["pass", "fail", "warning", "not_applicable"] },
+          "message": { "type": "string" },
+          "evidence": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "dimension_scores": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["dimension", "weight", "score", "critical", "evidence", "gaps", "remediation"],
+        "properties": {
+          "dimension": {
+            "enum": [
+              "technical_correctness_and_provenance",
+              "incident_matchability_and_applicability",
+              "resolution_completeness_and_usefulness",
+              "operational_clarity",
+              "ai_retrieval_readiness",
+              "ownership_and_freshness",
+              "security_and_access"
+            ]
+          },
+          "weight": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 },
+          "score": { "type": "integer", "minimum": 1, "maximum": 5 },
+          "critical": { "type": "boolean" },
+          "evidence": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "gaps": { "type": "array", "items": { "type": "string" } },
+          "remediation": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "hard_blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["blocker_id", "description", "evidence", "owner_queue"],
+        "properties": {
+          "blocker_id": { "type": "string" },
+          "description": { "type": "string" },
+          "evidence": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+          "owner_queue": { "enum": ["content_owner", "sme", "security", "platform", "knowledge_management"] }
+        }
+      }
+    },
+    "weighted_score": { "type": "number", "minimum": 1, "maximum": 5 },
+    "critical_dimensions_pass": { "type": "boolean" },
+    "retrieval_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["not_run", "pass", "fail"] },
+        "positive_top5_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "negative_rejection_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "permission_test_rate": { "type": "number", "minimum": 0, "maximum": 1 },
+        "details": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "decision": {
+      "enum": [
+        "BLOCKED",
+        "REWORK_OR_REJECT",
+        "ENHANCE_AND_REVIEW",
+        "HUMAN_APPROVAL_PENDING_TEST",
+        "HUMAN_APPROVAL",
+        "STREAMLINED_REVIEW_ELIGIBLE",
+        "PUBLISH"
+      ]
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "assessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "prompt_version", "rubric_version", "schema_version", "assessed_at"],
+      "properties": {
+        "model": { "type": "string" },
+        "prompt_version": { "type": "string" },
+        "rubric_version": { "type": "string" },
+        "schema_version": { "type": "string" },
+        "assessed_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

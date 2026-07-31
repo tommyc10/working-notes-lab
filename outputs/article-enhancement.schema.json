@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://internal.example/schemas/article-enhancement.schema.json",
+  "title": "Incident Knowledge Article Enhancement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source",
+    "classification",
+    "article",
+    "evidence_map",
+    "changes",
+    "gaps",
+    "sme_questions",
+    "conflict_candidates",
+    "pipeline"
+  ],
+  "properties": {
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "page_id", "version", "content_hash"],
+      "properties": {
+        "system": { "const": "confluence" },
+        "page_id": { "type": "string", "minLength": 1 },
+        "version": { "type": ["string", "integer"] },
+        "content_hash": { "type": "string", "minLength": 1 },
+        "url": { "type": "string" }
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_type", "content_risk", "source_trust", "maximum_change_class"],
+      "properties": {
+        "document_type": {
+          "enum": ["knowledge_article", "diagnostic_playbook", "remediation_runbook"]
+        },
+        "content_risk": { "enum": ["low", "medium", "high", "critical"] },
+        "source_trust": { "enum": ["governed", "owned", "uncertain", "conflicting"] },
+        "maximum_change_class": {
+          "enum": ["editorial", "source_backed_semantic", "substantive_sme_required"]
+        }
+      }
+    },
+    "article": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "summary",
+        "document_type",
+        "service",
+        "environment",
+        "versions",
+        "symptoms",
+        "trigger_signals",
+        "user_phrases",
+        "questions_answered",
+        "use_when",
+        "do_not_use_when",
+        "cause",
+        "prerequisites",
+        "safety_warnings",
+        "diagnosis",
+        "resolution_steps",
+        "verification",
+        "escalation",
+        "limitations",
+        "owner",
+        "knowledge_readiness",
+        "automation_readiness",
+        "agent_mode_allowed"
+      ],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "document_type": {
+          "enum": ["knowledge_article", "diagnostic_playbook", "remediation_runbook"]
+        },
+        "service": { "type": "array", "items": { "type": "string" } },
+        "component": { "type": "array", "items": { "type": "string" } },
+        "environment": { "type": "array", "items": { "type": "string" } },
+        "versions": { "type": "array", "items": { "type": "string" } },
+        "symptoms": { "type": "array", "items": { "type": "string" } },
+        "trigger_signals": { "type": "array", "items": { "type": "string" } },
+        "user_phrases": { "type": "array", "items": { "type": "string" } },
+        "questions_answered": { "type": "array", "items": { "type": "string" } },
+        "use_when": { "type": "array", "items": { "type": "string" } },
+        "do_not_use_when": { "type": "array", "items": { "type": "string" } },
+        "impact": { "type": "array", "items": { "type": "string" } },
+        "cause": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "value"],
+          "properties": {
+            "status": { "enum": ["verified", "source_claim", "unverified", "missing", "not_applicable"] },
+            "value": { "type": "string" }
+          }
+        },
+        "prerequisites": { "type": "array", "items": { "type": "string" } },
+        "safety_warnings": { "type": "array", "items": { "type": "string" } },
+        "diagnosis": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["condition", "next_action", "evidence_refs"],
+            "properties": {
+              "condition": { "type": "string" },
+              "next_action": { "type": "string" },
+              "evidence_refs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "resolution_steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["step_id", "instruction", "expected_result", "on_failure", "evidence_refs"],
+            "properties": {
+              "step_id": { "type": "string" },
+              "instruction": { "type": "string" },
+              "expected_result": { "type": "string" },
+              "on_failure": { "type": "string" },
+              "evidence_refs": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "verification": { "type": "array", "items": { "type": "string" } },
+        "escalation": { "type": "array", "items": { "type": "string" } },
+        "limitations": { "type": "array", "items": { "type": "string" } },
+        "related_sources": { "type": "array", "items": { "type": "string" } },
+        "owner": { "type": "string" },
+        "knowledge_readiness": { "const": "staged" },
+        "automation_readiness": { "enum": ["not_applicable", "manual_only"] },
+        "agent_mode_allowed": { "enum": ["retrieval_only", "recommendation"] }
+      }
+    },
+    "evidence_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["target_path", "support_status", "source_locations"],
+        "properties": {
+          "target_path": { "type": "string" },
+          "support_status": { "enum": ["direct", "entailed", "missing", "unverified"] },
+          "source_locations": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["target_path", "change_class", "before", "after", "reason", "evidence_refs"],
+        "properties": {
+          "target_path": { "type": "string" },
+          "change_class": { "enum": ["editorial", "source_backed_semantic", "substantive_sme_required"] },
+          "before": { "type": "string" },
+          "after": { "type": "string" },
+          "reason": { "type": "string" },
+          "evidence_refs": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["target_path", "severity", "description"],
+        "properties": {
+          "target_path": { "type": "string" },
+          "severity": { "enum": ["low", "medium", "high", "blocker"] },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "sme_questions": { "type": "array", "items": { "type": "string" } },
+    "conflict_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["candidate_id", "relationship", "reason"],
+        "properties": {
+          "candidate_id": { "type": "string" },
+          "relationship": { "enum": ["duplicate", "overlap", "contradiction", "supersedes", "superseded_by"] },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "pipeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "prompt_version", "template_version", "schema_version", "processed_at"],
+      "properties": {
+        "model": { "type": "string" },
+        "prompt_version": { "type": "string" },
+        "template_version": { "type": "string" },
+        "schema_version": { "type": "string" },
+        "processed_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
