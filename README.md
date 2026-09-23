@@ -15,6 +15,15 @@ The `outputs/` directory contains:
 - a Confluence-to-knowledge-system blueprint;
 - a work-PC implementation handoff.
 
+## Skills
+
+The `skills/` directory contains two complete skills from [transitions.dev](https://github.com/Jakubantalik/transitions.dev):
+
+- [`transitions-dev`](skills/transitions-dev/SKILL.md): CSS transition recipes and supporting references.
+- [`transitions-polish`](skills/transitions-polish/SKILL.md): guidance for refining existing motion and timing.
+
+See [the skills README](skills/README.md) for download and source details.
+
 ## Status
 
 Planning and prototyping only. The materials contain no internal articles, credentials, production endpoints, or operational tool integrations.
